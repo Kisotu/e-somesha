@@ -5,6 +5,7 @@ import (
 	"elearn-backend/internal/models"
 	"elearn-backend/internal/repository"
 	"elearn-backend/pkg/auth"
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -34,7 +35,11 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	existingUser, _ := h.userRepo.FindByEmail(req.Email)
+	existingUser, err := h.userRepo.FindByEmail(req.Email)
+	if err != nil && !errors.Is(err, repository.ErrNotFound) {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to check existing user"})
+		return
+	}
 	if existingUser != nil {
 		c.JSON(http.StatusConflict, gin.H{"error": "Email already registered"})
 		return
@@ -80,6 +85,10 @@ func (h *AuthHandler) Login(c *gin.Context) {
 
 	user, err := h.userRepo.FindByEmail(req.Email)
 	if err != nil {
+		if !errors.Is(err, repository.ErrNotFound) {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch user"})
+			return
+		}
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email or password"})
 		return
 	}
@@ -127,6 +136,10 @@ func (h *AuthHandler) Refresh(c *gin.Context) {
 
 	user, err := h.userRepo.FindByID(claims.UserID)
 	if err != nil {
+		if !errors.Is(err, repository.ErrNotFound) {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch user"})
+			return
+		}
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
 		return
 	}
@@ -147,6 +160,10 @@ func (h *AuthHandler) GetMe(c *gin.Context) {
 
 	user, err := h.userRepo.FindByID(userID)
 	if err != nil {
+		if !errors.Is(err, repository.ErrNotFound) {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch user"})
+			return
+		}
 		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		return
 	}

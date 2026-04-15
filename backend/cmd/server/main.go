@@ -9,12 +9,18 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
 	cfg := config.Load()
+
+	if runMigrationCommand(cfg) {
+		return
+	}
 
 	if err := database.Connect(cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBPassword, cfg.DBName); err != nil {
 		log.Printf("Warning: Could not connect to database: %v", err)
@@ -42,13 +48,15 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{"status": "healthy"})
 	})
 
+	window := time.Duration(cfg.RateLimitWindowSeconds) * time.Second
+
 	api := r.Group("/api")
 	{
 		auth := api.Group("/auth")
 		{
-			auth.POST("/register", authHandler.Register)
-			auth.POST("/login", authHandler.Login)
-			auth.POST("/refresh", authHandler.Refresh)
+			auth.POST("/register", middleware.RateLimitMiddleware(cfg.RegisterRateLimit, window), authHandler.Register)
+			auth.POST("/login", middleware.RateLimitMiddleware(cfg.LoginRateLimit, window), authHandler.Login)
+			auth.POST("/refresh", middleware.RateLimitMiddleware(cfg.RefreshRateLimit, window), authHandler.Refresh)
 		}
 
 		protected := api.Group("")
@@ -75,6 +83,7 @@ func main() {
 			}
 
 			sync := protected.Group("/sync")
+			sync.Use(middleware.RequestBodyLimitMiddleware(1 << 20))
 			{
 				sync.GET("/courses", syncHandler.SyncCourses)
 				sync.GET("/courses/:id", syncHandler.SyncCourse)
@@ -88,6 +97,37 @@ func main() {
 	if err := r.Run(":" + cfg.ServerPort); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}
+}
+
+func runMigrationCommand(cfg *config.Config) bool {
+	if len(os.Args) < 2 {
+		return false
+	}
+
+	cmd := os.Args[1]
+	if cmd != "migrate:up" && cmd != "migrate:down" {
+		return false
+	}
+
+	if err := database.Connect(cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBPassword, cfg.DBName); err != nil {
+		log.Fatalf("Failed to connect to database for migration command %s: %v", cmd, err)
+	}
+	defer database.Close()
+
+	switch cmd {
+	case "migrate:up":
+		if err := database.Migrate(database.DB); err != nil {
+			log.Fatalf("Migration up failed: %v", err)
+		}
+		log.Println("Migration up completed successfully")
+	case "migrate:down":
+		if err := database.RollbackLastMigration(database.DB); err != nil {
+			log.Fatalf("Migration down failed: %v", err)
+		}
+		log.Println("Migration down completed successfully")
+	}
+
+	return true
 }
 
 func startDemoServer(cfg *config.Config) {
@@ -131,22 +171,23 @@ func startDemoServer(cfg *config.Config) {
 	api := r.Group("/api")
 	{
 		auth := api.Group("/auth")
+		window := time.Duration(cfg.RateLimitWindowSeconds) * time.Second
 		{
-			auth.POST("/register", func(c *gin.Context) {
+			auth.POST("/register", middleware.RateLimitMiddleware(cfg.RegisterRateLimit, window), func(c *gin.Context) {
 				c.JSON(http.StatusCreated, gin.H{
 					"access_token":  "demo_access_token",
 					"refresh_token": "demo_refresh_token",
 					"user":          demoUser,
 				})
 			})
-			auth.POST("/login", func(c *gin.Context) {
+			auth.POST("/login", middleware.RateLimitMiddleware(cfg.LoginRateLimit, window), func(c *gin.Context) {
 				c.JSON(http.StatusOK, gin.H{
 					"access_token":  "demo_access_token",
 					"refresh_token": "demo_refresh_token",
 					"user":          demoUser,
 				})
 			})
-			auth.POST("/refresh", func(c *gin.Context) {
+			auth.POST("/refresh", middleware.RateLimitMiddleware(cfg.RefreshRateLimit, window), func(c *gin.Context) {
 				c.JSON(http.StatusOK, gin.H{"access_token": "demo_access_token"})
 			})
 		}
@@ -219,10 +260,10 @@ func startDemoServer(cfg *config.Config) {
 				})
 				courses.GET("/:id/download_manifest", func(c *gin.Context) {
 					c.JSON(http.StatusOK, gin.H{
-						"course_id":    1,
-						"version":      1,
-						"files":        demoMaterials,
-						"quizzes":      demoQuizzes,
+						"course_id":     1,
+						"version":       1,
+						"files":         demoMaterials,
+						"quizzes":       demoQuizzes,
 						"announcements": demoAnnouncements,
 					})
 				})
@@ -247,6 +288,7 @@ func startDemoServer(cfg *config.Config) {
 			}
 
 			sync := protected.Group("/sync")
+			sync.Use(middleware.RequestBodyLimitMiddleware(1 << 20))
 			{
 				sync.GET("/courses", func(c *gin.Context) {
 					c.JSON(http.StatusOK, gin.H{

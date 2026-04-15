@@ -21,12 +21,18 @@ type MaterialViewSync struct {
 }
 
 type MaterialViewSyncRequest struct {
-	Views []MaterialViewSync `json:"views" binding:"required"`
+	Views []MaterialViewSync `json:"views" binding:"required,max=1000"`
 }
 
 type MaterialViewSyncResponse struct {
-	Synced   int      `json:"synced"`
-	Rejected []int64  `json:"rejected"`
+	Synced          int                        `json:"synced"`
+	Rejected        []int64                    `json:"rejected"`
+	RejectedDetails []MaterialViewRejectResult `json:"rejected_details,omitempty"`
+}
+
+type MaterialViewRejectResult struct {
+	MaterialID int64  `json:"material_id"`
+	Reason     string `json:"reason"`
 }
 
 type QuizAttemptSync struct {
@@ -38,25 +44,25 @@ type QuizAttemptSync struct {
 }
 
 type QuizAttemptSyncRequest struct {
-	Attempts []QuizAttemptSync `json:"attempts" binding:"required"`
+	Attempts []QuizAttemptSync `json:"attempts" binding:"required,max=500"`
 }
 
 type QuizAttemptSyncResponse struct {
-	Synced   int                   `json:"synced"`
+	Synced    int                  `json:"synced"`
 	Conflicts []QuizConflictResult `json:"conflicts"`
-	Rejected []QuizRejectResult    `json:"rejected"`
+	Rejected  []QuizRejectResult   `json:"rejected"`
 }
 
 type QuizConflictResult struct {
-	QuizID      int64  `json:"quiz_id"`
-	LocalTime   time.Time `json:"local_time"`
-	ServerTime  time.Time `json:"server_time"`
-	Resolution  string    `json:"resolution"`
+	QuizID     int64     `json:"quiz_id"`
+	LocalTime  time.Time `json:"local_time"`
+	ServerTime time.Time `json:"server_time"`
+	Resolution string    `json:"resolution"`
 }
 
 type QuizRejectResult struct {
-	QuizID  int64  `json:"quiz_id"`
-	Reason  string `json:"reason"`
+	QuizID int64  `json:"quiz_id"`
+	Reason string `json:"reason"`
 }
 
 type DownloadManifestFile struct {
@@ -69,9 +75,9 @@ type DownloadManifestFile struct {
 }
 
 type DownloadManifestResponse struct {
-	CourseID     int64                   `json:"course_id"`
-	Version      int                     `json:"version"`
-	Files        []DownloadManifestFile  `json:"files"`
-	Quizzes      []Quiz                  `json:"quizzes"`
+	CourseID      int64                  `json:"course_id"`
+	Version       int                    `json:"version"`
+	Files         []DownloadManifestFile `json:"files"`
+	Quizzes       []Quiz                 `json:"quizzes"`
 	Announcements []Announcement         `json:"announcements"`
 }

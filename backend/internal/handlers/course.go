@@ -190,9 +190,23 @@ func (h *CourseHandler) GetDownloadManifest(c *gin.Context) {
 		return
 	}
 
-	materials, _ := h.courseRepo.GetMaterials(courseID)
-	quizzes, _ := h.courseRepo.GetQuizzes(courseID)
-	announcements, _ := h.courseRepo.GetAnnouncements(courseID, time.Now().AddDate(0, 0, -30))
+	materials, err := h.courseRepo.GetMaterials(courseID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch materials"})
+		return
+	}
+
+	quizzes, err := h.courseRepo.GetQuizzes(courseID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch quizzes"})
+		return
+	}
+
+	announcements, err := h.courseRepo.GetAnnouncements(courseID, time.Now().AddDate(0, 0, -30))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch announcements"})
+		return
+	}
 
 	c.JSON(http.StatusOK, models.DownloadManifestResponse{
 		CourseID:      manifest.CourseID,

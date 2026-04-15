@@ -5,6 +5,7 @@ import (
 	"elearn-backend/internal/models"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"time"
 )
 
@@ -40,6 +41,9 @@ func (r *CourseRepository) GetEnrolledCourses(userID int64) ([]models.Course, er
 			return nil, err
 		}
 		courses = append(courses, c)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
 	}
 	return courses, nil
 }
@@ -89,6 +93,9 @@ func (r *CourseRepository) GetMaterials(courseID int64) ([]models.Material, erro
 		}
 		materials = append(materials, m)
 	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
 	return materials, nil
 }
 
@@ -126,6 +133,9 @@ func (r *CourseRepository) GetQuizzes(courseID int64) ([]models.Quiz, error) {
 			return nil, err
 		}
 		quizzes = append(quizzes, q)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
 	}
 	return quizzes, nil
 }
@@ -168,6 +178,9 @@ func (r *CourseRepository) GetQuizQuestions(quizID int64) ([]models.QuizQuestion
 		}
 		questions = append(questions, q)
 	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
 	return questions, nil
 }
 
@@ -188,6 +201,9 @@ func (r *CourseRepository) GetAnnouncements(courseID int64, since time.Time) ([]
 			return nil, err
 		}
 		announcements = append(announcements, a)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
 	}
 	return announcements, nil
 }
@@ -210,6 +226,9 @@ func (r *CourseRepository) GetAllAnnouncements(courseID int64) ([]models.Announc
 		}
 		announcements = append(announcements, a)
 	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
 	return announcements, nil
 }
 
@@ -230,10 +249,15 @@ func (r *CourseRepository) GetDownloadManifest(courseID int64) (*models.Download
 }
 
 func (r *CourseRepository) SaveQuizAttempt(userID int64, attempt *models.QuizAttempt) (*models.QuizAttempt, error) {
+	answersJSON, err := toJSON(attempt.Answers)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal quiz answers: %w", err)
+	}
+
 	result, err := r.db.Exec(`
 		INSERT INTO quiz_attempts (user_id, quiz_id, answers, score, attempted_at)
 		VALUES (?, ?, ?, ?, ?)
-	`, userID, attempt.QuizID, toJSON(attempt.Answers), attempt.Score, attempt.AttemptedAt)
+	`, userID, attempt.QuizID, answersJSON, attempt.Score, attempt.AttemptedAt)
 
 	if err != nil {
 		return nil, err
@@ -292,6 +316,9 @@ func (r *CourseRepository) GetMaterialViews(userID int64) ([]models.MaterialView
 		}
 		views = append(views, v)
 	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
 	return views, nil
 }
 
@@ -308,26 +335,32 @@ func (r *CourseRepository) SyncCoursesSince(userID int64, since time.Time) ([]mo
 	for _, course := range courses {
 		if course.UpdatedAt.After(since) {
 			materials, err := r.GetMaterials(course.ID)
-			if err == nil {
-				allMaterials = append(allMaterials, materials...)
+			if err != nil {
+				return nil, nil, nil, nil, fmt.Errorf("failed to fetch materials for course %d: %w", course.ID, err)
 			}
+			allMaterials = append(allMaterials, materials...)
 
 			quizzes, err := r.GetQuizzes(course.ID)
-			if err == nil {
-				allQuizzes = append(allQuizzes, quizzes...)
+			if err != nil {
+				return nil, nil, nil, nil, fmt.Errorf("failed to fetch quizzes for course %d: %w", course.ID, err)
 			}
+			allQuizzes = append(allQuizzes, quizzes...)
 
 			announcements, err := r.GetAnnouncements(course.ID, since)
-			if err == nil {
-				allAnnouncements = append(allAnnouncements, announcements...)
+			if err != nil {
+				return nil, nil, nil, nil, fmt.Errorf("failed to fetch announcements for course %d: %w", course.ID, err)
 			}
+			allAnnouncements = append(allAnnouncements, announcements...)
 		}
 	}
 
 	return courses, allMaterials, allQuizzes, allAnnouncements, nil
 }
 
-func toJSON(v interface{}) string {
-	b, _ := json.Marshal(v)
-	return string(b)
+func toJSON(v interface{}) (string, error) {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return "", err
+	}
+	return string(b), nil
 }
