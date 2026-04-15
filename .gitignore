@@ -48,3 +48,10 @@ mobile/*.db-journal
 
 # Temporary files
 Db.txt
+
+BUILD_PLAN.md
+PHASED_FIX_RECOMMENDATIONS.md
+mobile/MOBILE_PHASED_FIX_RECOMMENDATIONS.md
+
+
+.github
