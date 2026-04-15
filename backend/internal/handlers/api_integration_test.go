@@ -67,6 +67,9 @@ func TestLoginEndpoint_ReturnsTokensForValidCredentials(t *testing.T) {
 	mock.ExpectQuery(regexp.QuoteMeta("SELECT id, email, password_hash, name, role, created_at, updated_at FROM users WHERE email = ?")).
 		WithArgs("student@example.com").
 		WillReturnRows(rows)
+	mock.ExpectExec(regexp.QuoteMeta("UPDATE users SET refresh_token_hash = ?, updated_at = ? WHERE id = ?")).
+		WithArgs(sqlmock.AnyArg(), sqlmock.AnyArg(), int64(1)).
+		WillReturnResult(sqlmock.NewResult(0, 1))
 
 	body := `{"email":"student@example.com","password":"password123"}`
 	req := httptest.NewRequest(http.MethodPost, "/api/auth/login", bytes.NewBufferString(body))

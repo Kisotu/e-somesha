@@ -2,7 +2,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useAuth } from "../../context/AuthContext";
 
 export default function ProfileScreen() {
-  const { user, signOut } = useAuth();
+  const { user, signOut, authError } = useAuth();
 
   return (
     <View style={styles.container}>
@@ -15,6 +15,8 @@ export default function ProfileScreen() {
         <Text style={styles.label}>Role</Text>
         <Text style={styles.value}>{user?.role ?? "-"}</Text>
       </View>
+
+      {authError ? <Text style={styles.warning}>{authError}</Text> : null}
 
       <Pressable style={styles.button} onPress={() => void signOut()}>
         <Text style={styles.buttonText}>Sign out</Text>
@@ -51,6 +53,11 @@ const styles = StyleSheet.create({
     color: "#13233a",
     fontWeight: "700",
     marginTop: 2,
+  },
+  warning: {
+    marginTop: 12,
+    color: "#9b1c1c",
+    fontWeight: "600",
   },
   button: {
     marginTop: 16,

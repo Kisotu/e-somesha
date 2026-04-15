@@ -2,21 +2,29 @@ import { Link } from "expo-router";
 import { useState } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { useAuth } from "../../context/AuthContext";
+import { validateLoginInput } from "../../utils/validation";
 
 export default function LoginScreen() {
-  const { signIn } = useAuth();
+  const { signIn, authError } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const visibleError = error ?? authError;
 
   const onSubmit = async () => {
     setError(null);
+    const validationError = validateLoginInput(email, password);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
     setSubmitting(true);
     try {
-      await signIn({ email, password });
+      await signIn({ email: email.trim(), password });
     } catch (err) {
-      setError("Unable to sign in. Please check your credentials.");
+      setError(err instanceof Error ? err.message : "Unable to sign in. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -43,7 +51,7 @@ export default function LoginScreen() {
         placeholder="Password"
       />
 
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+      {visibleError ? <Text style={styles.error}>{visibleError}</Text> : null}
 
       <Pressable style={styles.button} onPress={onSubmit} disabled={submitting}>
         {submitting ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Sign in</Text>}

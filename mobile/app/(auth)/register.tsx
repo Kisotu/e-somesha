@@ -2,22 +2,30 @@ import { Link } from "expo-router";
 import { useState } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { useAuth } from "../../context/AuthContext";
+import { validateRegisterInput } from "../../utils/validation";
 
 export default function RegisterScreen() {
-  const { register } = useAuth();
+  const { register, authError } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const visibleError = error ?? authError;
 
   const onSubmit = async () => {
     setError(null);
+    const validationError = validateRegisterInput(name, email, password);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
     setSubmitting(true);
     try {
-      await register({ name, email, password, role: "student" });
-    } catch {
-      setError("Unable to register. Try a different email.");
+      await register({ name: name.trim(), email: email.trim(), password, role: "student" });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to register. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -45,7 +53,7 @@ export default function RegisterScreen() {
         placeholder="Password"
       />
 
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+      {visibleError ? <Text style={styles.error}>{visibleError}</Text> : null}
 
       <Pressable style={styles.button} onPress={onSubmit} disabled={submitting}>
         {submitting ? (

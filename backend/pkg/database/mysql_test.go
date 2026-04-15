@@ -17,14 +17,16 @@ func TestMigrate_AppliesPendingMigrations(t *testing.T) {
 	mock.ExpectExec(regexp.QuoteMeta(migrationTableSQL)).WillReturnResult(sqlmock.NewResult(0, 0))
 	mock.ExpectQuery(regexp.QuoteMeta(`SELECT version FROM schema_migrations`)).WillReturnRows(sqlmock.NewRows([]string{"version"}))
 
-	mock.ExpectBegin()
-	for _, stmt := range migrations[0].Up {
-		mock.ExpectExec(regexp.QuoteMeta(stmt)).WillReturnResult(sqlmock.NewResult(0, 0))
+	for _, migration := range migrations {
+		mock.ExpectBegin()
+		for _, stmt := range migration.Up {
+			mock.ExpectExec(regexp.QuoteMeta(stmt)).WillReturnResult(sqlmock.NewResult(0, 0))
+		}
+		mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO schema_migrations (version, name) VALUES (?, ?)`)).
+			WithArgs(migration.Version, migration.Name).
+			WillReturnResult(sqlmock.NewResult(0, 1))
+		mock.ExpectCommit()
 	}
-	mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO schema_migrations (version, name) VALUES (?, ?)`)).
-		WithArgs(migrations[0].Version, migrations[0].Name).
-		WillReturnResult(sqlmock.NewResult(0, 1))
-	mock.ExpectCommit()
 
 	if err := Migrate(db); err != nil {
 		t.Fatalf("expected nil error, got %v", err)
@@ -44,7 +46,9 @@ func TestMigrate_SkipsAlreadyAppliedMigrations(t *testing.T) {
 
 	mock.ExpectExec(regexp.QuoteMeta(migrationTableSQL)).WillReturnResult(sqlmock.NewResult(0, 0))
 	rows := sqlmock.NewRows([]string{"version"})
-	rows.AddRow(migrations[0].Version)
+	for _, migration := range migrations {
+		rows.AddRow(migration.Version)
+	}
 	mock.ExpectQuery(regexp.QuoteMeta(`SELECT version FROM schema_migrations`)).
 		WillReturnRows(rows)
 

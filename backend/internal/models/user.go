@@ -35,5 +35,10 @@ type RefreshRequest struct {
 }
 
 type RefreshResponse struct {
-	AccessToken string `json:"access_token"`
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token,omitempty"`
+}
+
+type LogoutRequest struct {
+	RefreshToken string `json:"refresh_token" binding:"required"`
 }

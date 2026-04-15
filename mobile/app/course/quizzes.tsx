@@ -1,7 +1,9 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from "react-native";
+import { offlineData } from "../../database/offlineData";
 import { courseService } from "../../services/courseService";
+import { withRetry } from "../../services/retry";
 import { Quiz } from "../../types";
 
 export default function QuizzesScreen() {
@@ -30,10 +32,17 @@ export default function QuizzesScreen() {
 
       try {
         setError(null);
-        const data = await courseService.getCourseQuizzes(courseId);
+        const data = await withRetry(() => courseService.getCourseQuizzes(courseId));
         setQuizzes(data);
+        await offlineData.upsertQuizzes(data);
       } catch {
-        setError("Unable to load quizzes.");
+        const offlineQuizzes = await offlineData.getCourseQuizzes(courseId);
+        if (offlineQuizzes.length > 0) {
+          setQuizzes(offlineQuizzes);
+          setError("Showing offline quizzes. Connect to refresh.");
+        } else {
+          setError("Unable to load quizzes.");
+        }
       } finally {
         setLoading(false);
       }

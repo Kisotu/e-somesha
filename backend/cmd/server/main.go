@@ -57,6 +57,7 @@ func main() {
 			auth.POST("/register", middleware.RateLimitMiddleware(cfg.RegisterRateLimit, window), authHandler.Register)
 			auth.POST("/login", middleware.RateLimitMiddleware(cfg.LoginRateLimit, window), authHandler.Login)
 			auth.POST("/refresh", middleware.RateLimitMiddleware(cfg.RefreshRateLimit, window), authHandler.Refresh)
+			auth.POST("/logout", middleware.RateLimitMiddleware(cfg.RefreshRateLimit, window), authHandler.Logout)
 		}
 
 		protected := api.Group("")
@@ -188,7 +189,10 @@ func startDemoServer(cfg *config.Config) {
 				})
 			})
 			auth.POST("/refresh", middleware.RateLimitMiddleware(cfg.RefreshRateLimit, window), func(c *gin.Context) {
-				c.JSON(http.StatusOK, gin.H{"access_token": "demo_access_token"})
+				c.JSON(http.StatusOK, gin.H{"access_token": "demo_access_token", "refresh_token": "demo_refresh_token"})
+			})
+			auth.POST("/logout", middleware.RateLimitMiddleware(cfg.RefreshRateLimit, window), func(c *gin.Context) {
+				c.JSON(http.StatusOK, gin.H{"message": "Logged out successfully"})
 			})
 		}
 

@@ -12,7 +12,9 @@ import {
 import { CourseCard } from "../../components/CourseCard";
 import { OfflineBanner } from "../../components/OfflineBanner";
 import { useSync } from "../../context/SyncContext";
+import { offlineData } from "../../database/offlineData";
 import { courseService } from "../../services/courseService";
+import { withRetry } from "../../services/retry";
 import { Course } from "../../types";
 
 export default function DashboardScreen() {
@@ -25,8 +27,9 @@ export default function DashboardScreen() {
 
   const fetchCourses = async () => {
     setError(null);
-    const data = await courseService.getCourses();
+    const data = await withRetry(() => courseService.getCourses());
     setCourses(data);
+    await offlineData.upsertCourses(data);
   };
 
   useEffect(() => {

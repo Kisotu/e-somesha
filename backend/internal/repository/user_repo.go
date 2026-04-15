@@ -73,3 +73,59 @@ func (r *UserRepository) Update(user *models.User) error {
 	)
 	return err
 }
+
+func (r *UserRepository) SetRefreshTokenHash(userID int64, tokenHash string) error {
+	result, err := r.db.Exec(
+		"UPDATE users SET refresh_token_hash = ?, updated_at = ? WHERE id = ?",
+		tokenHash, time.Now(), userID,
+	)
+	if err != nil {
+		return err
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rows == 0 {
+		return ErrNotFound
+	}
+
+	return nil
+}
+
+func (r *UserRepository) GetRefreshTokenHash(userID int64) (string, error) {
+	var tokenHash sql.NullString
+	err := r.db.QueryRow("SELECT refresh_token_hash FROM users WHERE id = ?", userID).Scan(&tokenHash)
+	if err == sql.ErrNoRows {
+		return "", ErrNotFound
+	}
+	if err != nil {
+		return "", err
+	}
+	if !tokenHash.Valid {
+		return "", nil
+	}
+
+	return tokenHash.String, nil
+}
+
+func (r *UserRepository) ClearRefreshTokenHash(userID int64) error {
+	result, err := r.db.Exec(
+		"UPDATE users SET refresh_token_hash = NULL, updated_at = ? WHERE id = ?",
+		time.Now(), userID,
+	)
+	if err != nil {
+		return err
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rows == 0 {
+		return ErrNotFound
+	}
+
+	return nil
+}

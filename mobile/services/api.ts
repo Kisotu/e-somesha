@@ -3,13 +3,10 @@ import { tokenStorage } from "./tokenStorage";
 import { userStorage } from "./userStorage";
 import { RefreshQueue } from "./refreshQueue";
 import { API_BASE_URL } from "../utils/constants";
+import { RefreshResponse } from "../types";
 
 type RetryableRequestConfig = AxiosRequestConfig & {
   _retry?: boolean;
-};
-
-type RefreshResponse = {
-  access_token: string;
 };
 
 const refreshQueue = new RefreshQueue();
@@ -92,6 +89,9 @@ api.interceptors.response.use(
       });
 
       await tokenStorage.setAccessToken(data.access_token);
+      if (data.refresh_token) {
+        await tokenStorage.setRefreshToken(data.refresh_token);
+      }
       refreshQueue.finishRefresh(data.access_token);
       setAuthHeader(originalRequest, data.access_token);
       return api(originalRequest);

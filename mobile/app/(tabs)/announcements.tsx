@@ -1,26 +1,43 @@
 import { useEffect, useState } from "react";
-import { ActivityIndicator, FlatList, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, Text, View } from "react-native";
+import { offlineData } from "../../database/offlineData";
 import { announcementService } from "../../services/announcementService";
 import { courseService } from "../../services/courseService";
+import { withRetry } from "../../services/retry";
 import { Announcement } from "../../types";
 
 export default function AnnouncementsScreen() {
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [items, setItems] = useState<Announcement[]>([]);
   const [error, setError] = useState<string | null>(null);
+
+  const fetchAnnouncements = async () => {
+    setError(null);
+
+    const courses = await withRetry(() => courseService.getCourses());
+    if (courses.length === 0) {
+      setItems([]);
+      return;
+    }
+
+    const responseByCourse = await Promise.all(
+      courses.map((course) => withRetry(() => announcementService.getCourseAnnouncements(course.id))),
+    );
+
+    const merged = responseByCourse
+      .flat()
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+    setItems(merged);
+    await offlineData.upsertCourses(courses);
+    await offlineData.upsertAnnouncements(merged);
+  };
 
   useEffect(() => {
     const run = async () => {
       try {
-        const courses = await courseService.getCourses();
-        if (courses.length === 0) {
-          setItems([]);
-          return;
-        }
-
-        const firstCourse = courses[0];
-        const data = await announcementService.getCourseAnnouncements(firstCourse.id);
-        setItems(data);
+        await fetchAnnouncements();
       } catch {
         setError("Unable to load announcements.");
       } finally {
@@ -30,6 +47,17 @@ export default function AnnouncementsScreen() {
 
     void run();
   }, []);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await fetchAnnouncements();
+    } catch {
+      setError("Unable to refresh announcements.");
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -46,6 +74,7 @@ export default function AnnouncementsScreen() {
       <FlatList
         data={items}
         keyExtractor={(item) => String(item.id)}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         renderItem={({ item }) => (
           <View style={styles.card}>
             <Text style={styles.cardTitle}>{item.title}</Text>

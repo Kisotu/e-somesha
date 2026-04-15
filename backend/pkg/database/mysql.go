@@ -33,6 +33,7 @@ var migrations = []Migration{
 				id BIGINT PRIMARY KEY AUTO_INCREMENT,
 				email VARCHAR(255) UNIQUE NOT NULL,
 				password_hash VARCHAR(255) NOT NULL,
+				refresh_token_hash VARCHAR(255) NULL,
 				name VARCHAR(255) NOT NULL,
 				role ENUM('student', 'lecturer') DEFAULT 'student',
 				created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -144,6 +145,16 @@ var migrations = []Migration{
 			`DROP TABLE IF EXISTS enrollments`,
 			`DROP TABLE IF EXISTS courses`,
 			`DROP TABLE IF EXISTS users`,
+		},
+	},
+	{
+		Version: 2,
+		Name:    "add_refresh_token_hash",
+		Up: []string{
+			`ALTER TABLE users ADD COLUMN IF NOT EXISTS refresh_token_hash VARCHAR(255) NULL AFTER password_hash`,
+		},
+		Down: []string{
+			`ALTER TABLE users DROP COLUMN IF EXISTS refresh_token_hash`,
 		},
 	},
 }
