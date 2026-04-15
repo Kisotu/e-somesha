@@ -1,12 +1,20 @@
 # E-Somesha Mobile App
 
-Expo + React Native client for the E-Somesha offline-first learning platform.
+> Expo + React Native client for the offline-first E-Somesha learning platform.
+
+<table>
+	<tr>
+		<td><strong>📱 Client role</strong><br />Learner experience and offline cache</td>
+		<td><strong>🗃 Local storage</strong><br />SQLite-backed persistence and queues</td>
+		<td><strong>🔄 Reliability</strong><br />Retry, refresh queue, reconnection sync</td>
+	</tr>
+</table>
 
 The mobile app is built to keep learners productive in unstable network conditions by combining:
 
-- Local SQLite persistence for read availability.
-- Deferred sync for offline-generated actions.
-- Defensive auth/session handling for long-lived app sessions.
+- <strong>🗂 Local SQLite persistence</strong> for read availability.
+- <strong>⏳ Deferred sync</strong> for offline-generated actions.
+- <strong>🛡 Defensive auth/session handling</strong> for long-lived app sessions.
 
 ## Product Intent
 
@@ -39,20 +47,20 @@ Service Layer (services/)
 
 ### 1) Offline-First Read Model
 
-- Course, material, quiz, and announcement data are persisted locally.
-- UI can render from local store while disconnected.
+- <strong>📚 Course, material, quiz, and announcement data</strong> are persisted locally.
+- <strong>🖼 UI</strong> can render from local store while disconnected.
 
 ### 2) Queue-Then-Flush Write Model
 
-- Quiz attempts can be queued locally with timestamps.
-- On reconnect, `SyncContext` flushes pending attempts to backend sync endpoints.
+- <strong>📝 Quiz attempts</strong> can be queued locally with timestamps.
+- On reconnect, <strong>SyncContext</strong> flushes pending attempts to backend sync endpoints.
 - Successful uploads are marked synced; failures remain queued for later retries.
 
 ### 3) Session Resilience
 
-- A refresh queue prevents multiple concurrent token refresh calls.
-- Retry logic applies exponential backoff for transient network/server failures.
-- Auth refresh supports both rotating and non-rotating refresh token contracts.
+- <strong>🔁 Refresh queue</strong> prevents multiple concurrent token refresh calls.
+- <strong>📈 Retry logic</strong> applies exponential backoff for transient network/server failures.
+- <strong>🔐 Auth refresh</strong> supports both rotating and non-rotating refresh token contracts.
 
 The app favors availability and learner continuity, then converges to server truth when possible.
 
@@ -131,11 +139,11 @@ npm run typecheck
 
 Current tests cover critical reliability behavior, including:
 
-- Auth session handling
-- API integration edge cases
-- Retry policies
-- Refresh queue behavior
-- Input validation
+- <strong>Auth session handling</strong>
+- <strong>API integration edge cases</strong>
+- <strong>Retry policies</strong>
+- <strong>Refresh queue behavior</strong>
+- <strong>Input validation</strong>
 
 Run all tests:
 
@@ -147,5 +155,5 @@ npm run test
 
 For backend contracts and full-system architecture, see:
 
-- `../README.md`
-- `../backend/README.md`
+- [../README.md](../README.md)
+- [../backend/README.md](../backend/README.md)

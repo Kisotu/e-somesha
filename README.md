@@ -1,19 +1,29 @@
 # E-Somesha
 
-E-Somesha is an offline-first learning platform composed of:
+> Offline-first learning platform for unreliable network conditions.
 
-- A Go backend API that serves authentication, course content, and sync endpoints.
-- An Expo React Native mobile app that works online and offline with local persistence.
+<table>
+   <tr>
+      <td><strong>🧠 System shape</strong><br />Mobile-first distributed system</td>
+      <td><strong>🛠 Stack</strong><br />Go, Gin, MySQL, Expo, React Native, SQLite</td>
+      <td><strong>🔁 Reliability</strong><br />Sync, retry, refresh queue, demo mode</td>
+   </tr>
+</table>
 
-The project is designed for unreliable network environments where learning should continue even when connectivity drops.
+E-Somesha is composed of:
 
-## Why This Project Exists
+- <strong>⚙️ Backend API</strong> for authentication, course content, and sync endpoints.
+- <strong>📱 Mobile client</strong> for online/offline learning with local persistence.
+
+The system is intentionally shaped for interrupted connectivity so learning can continue when the network cannot.
+
+## Why This Exists
 
 Many learners experience intermittent or expensive connectivity. E-Somesha prioritizes:
 
-- **Learning continuity:** core content remains accessible without stable internet.
-- **Eventual consistency:** user actions taken offline are safely synchronized later.
-- **Resilience over fragility:** graceful degradation (including backend demo mode).
+- <strong>📚 Learning continuity</strong>: core content remains accessible without stable internet.
+- <strong>🧭 Eventual consistency</strong>: offline actions are safely synchronized later.
+- <strong>🛡 Resilience over fragility</strong>: graceful degradation, including backend demo mode.
 
 ## Monorepo Layout
 
@@ -61,18 +71,18 @@ e-somesha/
 
 ## System Thinking
 
-E-Somesha is engineered as a **distributed system with one edge client** (mobile) and one central authority (backend). Key design principles:
+E-Somesha is engineered as a **distributed system with one edge client** (mobile) and one central authority (backend). The design principles are:
 
-1. **Offline-first read path**
+1. **📥 Offline-first read path**
    - The app persists course data in SQLite and serves local reads even without connectivity.
-2. **Queued write path**
+2. **🗂 Queued write path**
    - Actions like quiz attempts can be stored locally, then flushed when network recovers.
-3. **Conflict strategy**
+3. **⚖️ Conflict strategy**
    - Backend sync logic resolves stale writes defensively (for example, server-side time precedence).
-4. **Failure as normal behavior**
+4. **⚡ Failure as normal behavior**
    - Retry logic with exponential backoff handles transient errors.
    - Refresh-queue logic prevents token refresh stampedes.
-5. **Graceful degradation**
+5. **🧪 Graceful degradation**
    - Backend demo mode enables API interaction even if database connectivity is unavailable.
 
 This architecture trades strict immediate consistency for **availability and learner continuity**, then converges state through synchronization.
@@ -98,17 +108,7 @@ See [mobile/README.md](mobile/README.md) for Expo setup, API URL configuration, 
 
 ## Quality And Validation
 
-- Backend includes unit/integration tests for handlers, middleware, repositories, and auth paths.
-- Mobile includes tests for auth session handling, retry behavior, API integration edges, and validation.
-
-## Roadmap Signals
-
-Use these repository docs to understand current and planned hardening work:
-
-- [BUILD_PLAN.md](BUILD_PLAN.md)
-- [PHASED_FIX_RECOMMENDATIONS.md](PHASED_FIX_RECOMMENDATIONS.md)
-- [mobile/MOBILE_PHASED_FIX_RECOMMENDATIONS.md](mobile/MOBILE_PHASED_FIX_RECOMMENDATIONS.md)
+- <strong>Backend</strong> includes unit/integration tests for handlers, middleware, repositories, and auth paths.
+- <strong>Mobile</strong> includes tests for auth session handling, retry behavior, API integration edges, and validation.
 
 ## License
-
-No explicit license is currently declared at repository root.

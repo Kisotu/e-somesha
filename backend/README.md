@@ -1,13 +1,21 @@
 # E-Somesha Backend API
 
-Go + Gin backend for the E-Somesha offline-first learning platform.
+> Go + Gin backend for the offline-first E-Somesha learning platform.
+
+<table>
+        <tr>
+                <td><strong>🧱 Core role</strong><br />Source of truth for identity, courses, and sync</td>
+                <td><strong>🔐 Security</strong><br />JWT auth, rate limits, auth middleware</td>
+                <td><strong>🌐 Runtime</strong><br />MySQL-backed, with demo-mode fallback</td>
+        </tr>
+</table>
 
 This service provides:
 
-- JWT-based authentication and refresh flow.
-- Protected learning endpoints (courses, materials, quizzes, announcements).
-- Synchronization endpoints for offline-generated learner events.
-- Operational safety controls such as rate limiting and request body limits.
+- <strong>🔑 JWT-based authentication</strong> and refresh flow.
+- <strong>📘 Protected learning endpoints</strong> for courses, materials, quizzes, and announcements.
+- <strong>🔄 Synchronization endpoints</strong> for offline-generated learner events.
+- <strong>🧯 Operational safety controls</strong> such as rate limiting and request body limits.
 
 ## Design Goals
 
@@ -52,10 +60,10 @@ Gin Router (cmd/server/main.go)
 
 The backend acts as the **source of truth** while mobile clients may operate offline for long periods.
 
-- **Inbound offline events** (material views, quiz attempts) are accepted in batches.
-- **Ownership checks** reject attempts where `user_id` does not match authenticated identity.
-- **Conflict handling** on quiz attempts favors fresher server-recognized state when local data is stale.
-- **Partial acceptance** reports synced, conflicted, and rejected items so clients can reconcile intentionally.
+- <strong>📦 Inbound offline events</strong> (material views, quiz attempts) are accepted in batches.
+- <strong>🪪 Ownership checks</strong> reject attempts where `user_id` does not match authenticated identity.
+- <strong>⚖️ Conflict handling</strong> on quiz attempts favors fresher server-recognized state when local data is stale.
+- <strong>🧾 Partial acceptance</strong> reports synced, conflicted, and rejected items so clients can reconcile intentionally.
 
 This design avoids all-or-nothing sync failures and supports eventual consistency at scale.
 
@@ -148,9 +156,9 @@ If DB connection fails, the server starts in demo mode with mock data and the sa
 
 ## Operational Notes
 
-- Auth endpoints are rate-limited independently by operation type.
-- Sync write endpoints enforce request body size limits.
-- JWT secret defaults are for local development only.
+- <strong>Auth endpoints</strong> are rate-limited independently by operation type.
+- <strong>Sync write endpoints</strong> enforce request body size limits.
+- <strong>JWT secret defaults</strong> are for local development only.
 
 ## Testing
 
@@ -164,4 +172,4 @@ Coverage includes handlers, auth behavior, middleware boundaries, repository log
 
 ## Repository Context
 
-For platform-level architecture and mobile interaction details, see the repository root guide at `../README.md`.
+For platform-level architecture and mobile interaction details, see the repository root guide at [../README.md](../README.md).
