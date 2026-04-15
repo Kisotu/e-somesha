@@ -2,10 +2,20 @@
 
 > Offline-first learning platform for unreliable network conditions.
 
+<p align="center">
+  <img src="https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white" alt="Go" />
+  <img src="https://img.shields.io/badge/Gin-008080?style=for-the-badge&logo=gin&logoColor=white" alt="Gin" />
+  <img src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white" alt="MySQL" />
+  <img src="https://img.shields.io/badge/React_Native-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React Native" />
+  <img src="https://img.shields.io/badge/Expo-000020?style=for-the-badge&logo=expo&logoColor=white" alt="Expo" />
+  <img src="https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white" alt="SQLite" />
+  <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+</p>
+
 <table>
    <tr>
       <td><strong>🧠 System shape</strong><br />Mobile-first distributed system</td>
-      <td><strong>🛠 Stack</strong><br />Go, Gin, MySQL, Expo, React Native, SQLite</td>
+      <td><strong>🛠 Stack</strong><br />Core technologies & tools</td>
       <td><strong>🔁 Reliability</strong><br />Sync, retry, refresh queue, demo mode</td>
    </tr>
 </table>

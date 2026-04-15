@@ -2,6 +2,14 @@
 
 > Go + Gin backend for the offline-first E-Somesha learning platform.
 
+<p align="left">
+  <img src="https://img.shields.io/badge/Go-00ADD8?style=flat-square&logo=go&logoColor=white" alt="Go" />
+  <img src="https://img.shields.io/badge/Gin-008080?style=flat-square&logo=gin&logoColor=white" alt="Gin" />
+  <img src="https://img.shields.io/badge/MySQL-4479A1?style=flat-square&logo=mysql&logoColor=white" alt="MySQL" />
+  <img src="https://img.shields.io/badge/JWT-000000?style=flat-square&logo=json-web-tokens&logoColor=white" alt="JWT" />
+  <img src="https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white" alt="Docker" />
+</p>
+
 <table>
         <tr>
                 <td><strong>🧱 Core role</strong><br />Source of truth for identity, courses, and sync</td>
