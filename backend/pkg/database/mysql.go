@@ -150,12 +150,10 @@ var migrations = []Migration{
 	{
 		Version: 2,
 		Name:    "add_refresh_token_hash",
-		Up: []string{
-			`ALTER TABLE users ADD COLUMN IF NOT EXISTS refresh_token_hash VARCHAR(255) NULL AFTER password_hash`,
-		},
-		Down: []string{
-			`ALTER TABLE users DROP COLUMN IF EXISTS refresh_token_hash`,
-		},
+		// The refresh_token_hash column is already present in migration 1.
+		// Keep version 2 as a no-op for backward compatibility.
+		Up:   []string{},
+		Down: []string{},
 	},
 }
 

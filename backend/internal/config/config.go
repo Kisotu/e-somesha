@@ -3,7 +3,12 @@ package config
 import (
 	"os"
 	"strconv"
+	"sync"
+
+	"github.com/joho/godotenv"
 )
+
+var dotenvLoadOnce sync.Once
 
 type Config struct {
 	ServerPort             string
@@ -22,6 +27,8 @@ type Config struct {
 }
 
 func Load() *Config {
+	loadDotEnv()
+
 	return &Config{
 		ServerPort:             getEnv("SERVER_PORT", "8080"),
 		DBHost:                 getEnv("DB_HOST", "localhost"),
@@ -37,6 +44,13 @@ func Load() *Config {
 		RefreshRateLimit:       getEnvInt("AUTH_REFRESH_RATE_LIMIT", 30),
 		RateLimitWindowSeconds: getEnvInt("AUTH_RATE_LIMIT_WINDOW_SECONDS", 60),
 	}
+}
+
+func loadDotEnv() {
+	dotenvLoadOnce.Do(func() {
+		// Support running from backend/ and repository root.
+		_ = godotenv.Load(".env", "backend/.env")
+	})
 }
 
 func getEnv(key, defaultValue string) string {

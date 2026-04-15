@@ -90,23 +90,25 @@ go mod download
 
 ### 2) Configure Environment
 
-Set environment variables (shell or `.env` equivalent):
+Create a `.env` file in `backend/` (loaded automatically on startup):
 
-```bash
-export SERVER_PORT=8080
-export DB_HOST=localhost
-export DB_PORT=3306
-export DB_USER=root
-export DB_PASSWORD=your_password
-export DB_NAME=elearn
-export JWT_SECRET=replace-this-secret-in-production
-export JWT_EXPIRY_HOURS=24
-export REFRESH_EXPIRY_DAYS=7
-export AUTH_LOGIN_RATE_LIMIT=5
-export AUTH_REGISTER_RATE_LIMIT=3
-export AUTH_REFRESH_RATE_LIMIT=30
-export AUTH_RATE_LIMIT_WINDOW_SECONDS=60
+```env
+SERVER_PORT=8080
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=root
+DB_PASSWORD=your_password
+DB_NAME=elearn
+JWT_SECRET=replace-this-secret-in-production
+JWT_EXPIRY_HOURS=24
+REFRESH_EXPIRY_DAYS=7
+AUTH_LOGIN_RATE_LIMIT=5
+AUTH_REGISTER_RATE_LIMIT=3
+AUTH_REFRESH_RATE_LIMIT=30
+AUTH_RATE_LIMIT_WINDOW_SECONDS=60
 ```
+
+You can still export variables in your shell if needed, but `.env` is the default local setup.
 
 ### 3) Create Database
 
