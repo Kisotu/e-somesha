@@ -1,9 +1,11 @@
 const API_ENV = (process.env.EXPO_PUBLIC_API_ENV ?? "dev").toLowerCase();
 
+const PROD_FALLBACK_API_BASE_URL = "https://oloishorua-go-backend.hf.space/api";
+
 const API_BASE_URL_BY_ENV: Record<string, string | undefined> = {
   dev: process.env.EXPO_PUBLIC_API_BASE_URL_DEV,
   staging: process.env.EXPO_PUBLIC_API_BASE_URL_STAGING,
-  prod: process.env.EXPO_PUBLIC_API_BASE_URL_PROD,
+  prod: process.env.EXPO_PUBLIC_API_BASE_URL_PROD ?? PROD_FALLBACK_API_BASE_URL,
 };
 
 const DEV_FALLBACK_API_BASE_URL = "http://localhost:8080/api";

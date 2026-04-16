@@ -5,9 +5,12 @@ USE elearn;
 
 -- Insert demo users
 INSERT INTO users (email, password_hash, name, role) VALUES
-('lecturer@university.edu', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZRGdjGj/n3.rKsLY7zNdCFBsAqKCK', 'Dr. Jane Smith', 'lecturer'),
-('student@university.edu', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZRGdjGj/n3.rKsLY7zNdCFBsAqKCK', 'John Doe', 'student')
-ON DUPLICATE KEY UPDATE name=VALUES(name);
+('lecturer@university.edu', '$2a$10$pQZZT5w.C1epD7xdq1GEg.H5tHb4YNxa2MkQYrcDYsdDDZvN2RdNq', 'Dr. Jane Smith', 'lecturer'),
+('student@university.edu', '$2a$10$pQZZT5w.C1epD7xdq1GEg.H5tHb4YNxa2MkQYrcDYsdDDZvN2RdNq', 'John Doe', 'student')
+ON DUPLICATE KEY UPDATE
+	password_hash=VALUES(password_hash),
+	name=VALUES(name),
+	role=VALUES(role);
 
 -- Insert demo courses
 INSERT INTO courses (title, code, description, lecturer_id) VALUES
@@ -65,5 +68,5 @@ INSERT INTO download_manifests (course_id, files, version) VALUES
 (3, '[]', 1)
 ON DUPLICATE KEY UPDATE version=VALUES(version);
 
--- Note: Password for all users is 'password123' (bcrypt hash)
+-- Note: Password for all users is 'Passw0rd!123' (bcrypt hash)
 -- In production, hash passwords properly before inserting

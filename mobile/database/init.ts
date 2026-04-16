@@ -68,7 +68,6 @@ const schemaStatements = [
     enqueued_at TEXT DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (local_attempt_id) REFERENCES quiz_attempts_local(id) ON DELETE CASCADE
   );`,
-  `ALTER TABLE quiz_attempts_local ADD COLUMN IF NOT EXISTS user_id TEXT NOT NULL DEFAULT '0';`,
   `CREATE TABLE IF NOT EXISTS announcements_local (
     id TEXT PRIMARY KEY,
     course_id TEXT,
@@ -113,5 +112,12 @@ export const initializeDatabase = async (): Promise<void> => {
 
   for (const statement of schemaStatements) {
     await db.execAsync(statement);
+  }
+
+  const quizAttemptColumns = await db.getAllAsync<{ name: string }>(`PRAGMA table_info(quiz_attempts_local);`);
+  const hasUserIdColumn = quizAttemptColumns.some((column) => column.name === "user_id");
+
+  if (!hasUserIdColumn) {
+    await db.execAsync(`ALTER TABLE quiz_attempts_local ADD COLUMN user_id TEXT NOT NULL DEFAULT '0';`);
   }
 };

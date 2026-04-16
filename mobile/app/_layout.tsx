@@ -45,9 +45,11 @@ export default function RootLayout() {
 
     try {
       await initializeDatabase();
-    } catch {
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown database error";
+      console.error("Database bootstrap failed", error);
       setDbBootstrapError(
-        "Offline database failed to initialize. Retry to continue or restart the app.",
+        `Offline database failed to initialize: ${message}. Retry to continue or restart the app.`,
       );
     } finally {
       setDbBootstrapping(false);

@@ -104,6 +104,8 @@ npm install
 
 ### 2) Configure API Base URL
 
+For local backend development:
+
 ```bash
 export EXPO_PUBLIC_API_BASE_URL=http://localhost:8080/api
 ```
@@ -112,6 +114,19 @@ For Android emulator, use:
 
 ```bash
 export EXPO_PUBLIC_API_BASE_URL=http://10.0.2.2:8080/api
+```
+
+For deployed backend on Hugging Face Spaces:
+
+```bash
+export EXPO_PUBLIC_API_ENV=prod
+export EXPO_PUBLIC_API_BASE_URL_PROD=https://oloishorua-go-backend.hf.space/api
+```
+
+If `EXPO_PUBLIC_API_BASE_URL_PROD` is not set, the app now defaults to:
+
+```text
+https://oloishorua-go-backend.hf.space/api
 ```
 
 ### API URL Safety Rules
