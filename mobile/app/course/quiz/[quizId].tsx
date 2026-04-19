@@ -130,46 +130,70 @@ export default function QuizAttemptScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Quiz Attempt</Text>
-      <Text style={styles.subtitle}>Quiz ID: {params.quizId ?? "-"}</Text>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Quiz</Text>
+        <Text style={styles.headerSubtitle}>Assessment ID: {params.quizId ?? "-"}</Text>
+      </View>
 
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+      {error ? (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
+      ) : null}
 
       {!detail ? (
-        <Text style={styles.body}>Quiz details are unavailable.</Text>
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>Quiz details are unavailable.</Text>
+        </View>
       ) : (
-        <>
-          <Text style={styles.quizTitle}>{detail.quiz.title}</Text>
-          <FlatList
-            data={detail.questions}
-            keyExtractor={(item) => String(item.id)}
-            renderItem={({ item, index }) => (
-              <View style={styles.questionCard}>
-                <Text style={styles.questionText}>{index + 1}. {item.question_text}</Text>
-                {item.options.map((option, optionIndex) => {
-                  const selected = answers[item.id] === optionIndex;
-                  return (
-                    <Pressable
-                      key={`${item.id}-${optionIndex}`}
-                      onPress={() => setAnswer(item.id, optionIndex)}
-                      style={[styles.optionButton, selected ? styles.optionButtonSelected : null]}
-                    >
-                      <Text style={[styles.optionText, selected ? styles.optionTextSelected : null]}>
-                        {option}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
-              </View>
-            )}
-            ListFooterComponent={
+        <FlatList
+          contentContainerStyle={styles.listContent}
+          data={detail.questions}
+          keyExtractor={(item) => String(item.id)}
+          ListHeaderComponent={
+            <View style={styles.questionCard}>
+              <Text style={styles.questionText}>Title: {detail.quiz.title}</Text>
+            </View>
+          }
+          renderItem={({ item, index }) => (
+            <View style={styles.questionCard}>
+              <Text style={styles.questionText}>{index + 1}. {item.question_text}</Text>
+              {item.options.map((option, optionIndex) => {
+                const selected = answers[item.id] === optionIndex;
+                return (
+                  <Pressable
+                    key={`${item.id}-${optionIndex}`}
+                    onPress={() => setAnswer(item.id, optionIndex)}
+                    style={({ pressed }) => [
+                      styles.optionButton, 
+                      selected && styles.optionButtonSelected,
+                      pressed && !selected && styles.optionButtonPressed
+                    ]}
+                  >
+                    <View style={[styles.optionRadio, selected && styles.optionRadioSelected]}>
+                      {selected && <View style={styles.optionRadioInner} />}
+                    </View>
+                    <Text style={[styles.optionText, selected && styles.optionTextSelected]}>
+                      {option}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          )}
+          ListFooterComponent={
+            <>
               <Pressable style={styles.submitButton} onPress={() => void submitAttempt()}>
-                <Text style={styles.submitButtonText}>Submit attempt</Text>
+                <Text style={styles.submitButtonText}>Submit Attempt</Text>
               </Pressable>
-            }
-          />
-          {status ? <Text style={styles.status}>{status}</Text> : null}
-        </>
+              {status ? (
+                <View style={styles.statusContainer}>
+                  <Text style={styles.statusText}>{status}</Text>
+                </View>
+              ) : null}
+            </>
+          }
+        />
       )}
     </View>
   );
@@ -178,85 +202,165 @@ export default function QuizAttemptScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f2f6fb",
-    padding: 16,
+    backgroundColor: "#f8fafc",
   },
   centered: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "#ffffff",
   },
-  title: {
-    fontSize: 26,
+  header: {
+    paddingHorizontal: 24,
+    paddingTop: 24,
+    paddingBottom: 16,
+    backgroundColor: "#ffffff",
+    borderBottomWidth: 1,
+    borderBottomColor: "#e2e8f0",
+  },
+  headerTitle: {
+    fontSize: 28,
     fontWeight: "800",
-    color: "#13233a",
+    color: "#0f172a",
     marginBottom: 4,
+    fontFamily: "System",
+    letterSpacing: -0.5,
   },
-  subtitle: {
-    color: "#4f6177",
-    marginBottom: 12,
+  headerSubtitle: {
+    color: "#64748b",
+    fontSize: 16,
+    fontFamily: "System",
   },
-  quizTitle: {
-    color: "#13233a",
-    fontWeight: "700",
-    marginBottom: 10,
+  listContent: {
+    padding: 24,
   },
   questionCard: {
     backgroundColor: "#ffffff",
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#dde3ea",
-    padding: 14,
-    marginBottom: 10,
+    borderColor: "#e2e8f0",
+    padding: 20,
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
   questionText: {
-    color: "#13233a",
+    fontSize: 18,
     fontWeight: "600",
-    marginBottom: 10,
+    color: "#0f172a",
+    marginBottom: 16,
+    fontFamily: "System",
+    lineHeight: 26,
   },
   optionButton: {
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#cfd9e4",
-    borderRadius: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    marginBottom: 8,
-    backgroundColor: "#f7f9fc",
+    borderColor: "#e2e8f0",
+    marginBottom: 10,
+    backgroundColor: "#f8fafc",
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  optionButtonPressed: {
+    backgroundColor: "#f1f5f9",
   },
   optionButtonSelected: {
-    borderColor: "#0f4c81",
-    backgroundColor: "#e9f2fb",
+    backgroundColor: "#eff6ff",
+    borderColor: "#22c55e",
+  },
+  optionRadio: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: "#cbd5e1",
+    marginRight: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#ffffff",
+  },
+  optionRadioSelected: {
+    borderColor: "#22c55e",
+    backgroundColor: "#ffffff",
+  },
+  optionRadioInner: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: "#22c55e",
   },
   optionText: {
-    color: "#33475b",
+    color: "#334155",
+    fontSize: 16,
+    fontFamily: "System",
+    flex: 1,
   },
   optionTextSelected: {
-    color: "#0f4c81",
-    fontWeight: "700",
+    color: "#166534",
+    fontWeight: "600",
   },
   submitButton: {
-    marginTop: 4,
-    marginBottom: 12,
-    backgroundColor: "#0f4c81",
-    borderRadius: 10,
-    paddingVertical: 12,
+    marginTop: 12,
+    backgroundColor: "#0f172a",
+    borderRadius: 8,
+    paddingVertical: 16,
     alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
   },
   submitButtonText: {
     color: "#ffffff",
-    fontWeight: "700",
-  },
-  body: {
-    color: "#415267",
-  },
-  error: {
-    color: "#9b1c1c",
-    marginBottom: 8,
-  },
-  status: {
-    color: "#1f5130",
     fontWeight: "600",
-    marginTop: 4,
-    marginBottom: 10,
+    fontSize: 16,
+    fontFamily: "System",
+  },
+  errorContainer: {
+    margin: 24,
+    marginBottom: 0,
+    backgroundColor: "#fef2f2",
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#fecaca",
+  },
+  errorText: {
+    color: "#dc2626",
+    fontSize: 14,
+    fontFamily: "System",
+    fontWeight: "500",
+  },
+  statusContainer: {
+    marginTop: 16,
+    backgroundColor: "#f0fdf4",
+    padding: 16,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#dcfce7",
+  },
+  statusText: {
+    color: "#166534",
+    fontSize: 14,
+    fontWeight: "500",
+    fontFamily: "System",
+    textAlign: "center",
+  },
+  emptyContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingTop: 48,
+  },
+  emptyText: {
+    color: "#64748b",
+    fontSize: 16,
+    fontFamily: "System",
+    textAlign: "center",
   },
 });

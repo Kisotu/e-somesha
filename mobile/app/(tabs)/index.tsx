@@ -70,16 +70,20 @@ export default function DashboardScreen() {
       <OfflineBanner visible={!isOnline} />
       <View style={styles.header}>
         <Text style={styles.title}>My Courses</Text>
-        <Text style={styles.subtitle}>Local-first dashboard with server sync</Text>
+        <Text style={styles.subtitle}>Welcome back to your learning dashboard</Text>
       </View>
 
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+      {error ? (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
+      ) : null}
 
       <FlatList
         data={courses}
         keyExtractor={(item) => String(item.id)}
         contentContainerStyle={styles.listContent}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#0f172a" />}
         renderItem={({ item }) => (
           <CourseCard course={item} onPress={() => router.push(`/course/${item.id}`)} />
         )}
@@ -92,39 +96,60 @@ export default function DashboardScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f2f6fb",
+    backgroundColor: "#ffffff",
   },
   centered: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "#ffffff",
   },
   header: {
-    paddingHorizontal: 16,
-    paddingTop: 8,
-    paddingBottom: 6,
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 16,
+    backgroundColor: "#ffffff",
+    borderBottomWidth: 1,
+    borderBottomColor: "#f1f5f9",
   },
   title: {
-    fontSize: 26,
-    fontWeight: "800",
-    color: "#13233a",
+    fontSize: 28,
+    fontWeight: "700",
+    color: "#0f172a",
+    fontFamily: "System",
+    letterSpacing: -0.5,
   },
   subtitle: {
-    color: "#4f6177",
-    marginTop: 2,
+    fontSize: 15,
+    color: "#64748b",
+    marginTop: 6,
+    fontFamily: "System",
+    fontWeight: "400",
   },
   listContent: {
-    padding: 16,
-    paddingTop: 8,
+    padding: 20,
+    paddingTop: 12,
   },
   empty: {
     textAlign: "center",
-    color: "#4f6177",
-    marginTop: 30,
+    color: "#64748b",
+    fontSize: 15,
+    marginTop: 40,
+    fontFamily: "System",
   },
-  error: {
-    color: "#9b1c1c",
-    paddingHorizontal: 16,
-    marginTop: 4,
+  errorContainer: {
+    marginHorizontal: 20,
+    marginTop: 16,
+    backgroundColor: "#fef2f2",
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#fecaca",
+  },
+  errorText: {
+    color: "#dc2626",
+    fontSize: 14,
+    fontFamily: "System",
+    fontWeight: "500",
   },
 });

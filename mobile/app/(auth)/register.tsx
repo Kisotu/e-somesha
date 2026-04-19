@@ -33,39 +33,76 @@ export default function RegisterScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Create account</Text>
-      <Text style={styles.subtitle}>Use your university email to get started.</Text>
+      <View style={styles.header}>
+        <Text style={styles.title}>Create account</Text>
+        <Text style={styles.subtitle}>Use your university email to get started.</Text>
+      </View>
 
-      <TextInput style={styles.input} value={name} onChangeText={setName} placeholder="Full name" />
-      <TextInput
-        style={styles.input}
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
-        keyboardType="email-address"
-        placeholder="Email"
-      />
-      <TextInput
-        style={styles.input}
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-        placeholder="Password"
-      />
+      <View style={styles.formContainer}>
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Full Name</Text>
+          <TextInput
+            style={styles.input}
+            value={name}
+            onChangeText={setName}
+            placeholder="John Doe"
+            placeholderTextColor="#94a3b8"
+          />
+        </View>
 
-      {visibleError ? <Text style={styles.error}>{visibleError}</Text> : null}
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Email</Text>
+          <TextInput
+            style={styles.input}
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+            keyboardType="email-address"
+            placeholder="name@example.com"
+            placeholderTextColor="#94a3b8"
+          />
+        </View>
 
-      <Pressable style={styles.button} onPress={onSubmit} disabled={submitting}>
-        {submitting ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={styles.buttonText}>Create account</Text>
-        )}
-      </Pressable>
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Password</Text>
+          <TextInput
+            style={styles.input}
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            placeholder="Create a password"
+            placeholderTextColor="#94a3b8"
+          />
+        </View>
 
-      <Link href="/(auth)/login" style={styles.link}>
-        Already have an account? Login
-      </Link>
+        {visibleError ? (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>{visibleError}</Text>
+          </View>
+        ) : null}
+
+        <Pressable
+          style={({ pressed }) => [
+            styles.button,
+            pressed && styles.buttonPressed,
+            submitting && styles.buttonDisabled
+          ]}
+          onPress={onSubmit}
+          disabled={submitting}
+        >
+          {submitting ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.buttonText}>Create Account</Text>
+          )}
+        </Pressable>
+
+        <Link href="/(auth)/login" asChild>
+          <Pressable style={styles.linkContainer}>
+            <Text style={styles.linkText}>Already have an account? <Text style={styles.linkHighlight}>Login</Text></Text>
+          </Pressable>
+        </Link>
+      </View>
     </View>
   );
 }
@@ -73,49 +110,104 @@ export default function RegisterScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f8fb",
-    padding: 20,
+    backgroundColor: "#ffffff",
+    padding: 24,
     justifyContent: "center",
   },
+  header: {
+    marginBottom: 32,
+  },
   title: {
-    fontSize: 30,
+    fontSize: 32,
     fontWeight: "800",
-    color: "#13233a",
+    color: "#0f172a",
     marginBottom: 8,
+    fontFamily: "System",
+    letterSpacing: -0.5,
   },
   subtitle: {
-    color: "#4f6177",
-    marginBottom: 18,
+    color: "#64748b",
+    fontSize: 16,
+    fontFamily: "System",
+    lineHeight: 24,
+  },
+  formContainer: {
+    width: "100%",
+  },
+  inputGroup: {
+    marginBottom: 20,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#0f172a",
+    marginBottom: 8,
+    fontFamily: "System",
   },
   input: {
     backgroundColor: "#ffffff",
     borderWidth: 1,
-    borderColor: "#d7e1ec",
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 11,
-    marginBottom: 10,
+    borderColor: "#cbd5e1",
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontSize: 16,
+    color: "#0f172a",
+    fontFamily: "System",
   },
   button: {
-    marginTop: 8,
-    backgroundColor: "#0f4c81",
-    borderRadius: 10,
-    paddingVertical: 12,
+    marginTop: 12,
+    backgroundColor: "#0f172a",
+    borderRadius: 8,
+    paddingVertical: 16,
     alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  buttonPressed: {
+    opacity: 0.9,
+    transform: [{ scale: 0.99 }],
+  },
+  buttonDisabled: {
+    backgroundColor: "#475569",
+    opacity: 0.7,
   },
   buttonText: {
-    color: "#fff",
-    fontWeight: "700",
+    color: "#ffffff",
+    fontWeight: "600",
     fontSize: 16,
+    fontFamily: "System",
   },
-  error: {
-    color: "#9b1c1c",
-    marginTop: 4,
+  errorContainer: {
+    backgroundColor: "#fef2f2",
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#fecaca",
+    marginBottom: 16,
   },
-  link: {
-    marginTop: 14,
-    color: "#0f4c81",
-    textAlign: "center",
+  errorText: {
+    color: "#dc2626",
+    fontSize: 14,
+    fontFamily: "System",
+    fontWeight: "500",
+  },
+  linkContainer: {
+    marginTop: 24,
+    alignItems: "center",
+    paddingVertical: 8,
+  },
+  linkText: {
+    color: "#64748b",
+    fontSize: 14,
+    fontFamily: "System",
+  },
+  linkHighlight: {
+    color: "#0f172a",
     fontWeight: "600",
   },
 });

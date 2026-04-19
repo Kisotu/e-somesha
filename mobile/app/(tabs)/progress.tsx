@@ -43,33 +43,57 @@ export default function ProgressScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Progress</Text>
+      <Text style={styles.subtitle}>Overview of your offline and online activity</Text>
 
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+      {error ? (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
+      ) : null}
 
       {!metrics ? null : (
         <View style={styles.card}>
-          <Text style={styles.metricLabel}>Downloaded courses</Text>
-          <Text style={styles.metricValue}>
-            {metrics.downloadedCourses}/{metrics.totalCourses} ({metrics.downloadCompletionPercent}%)
-          </Text>
+          <View style={styles.metricRow}>
+            <Text style={styles.metricLabel}>Downloaded Courses</Text>
+            <Text style={styles.metricValue}>
+              {metrics.downloadedCourses}/{metrics.totalCourses} ({metrics.downloadCompletionPercent}%)
+            </Text>
+          </View>
+          <View style={styles.divider} />
 
-          <Text style={styles.metricLabel}>Cached materials</Text>
-          <Text style={styles.metricValue}>{metrics.totalMaterials}</Text>
+          <View style={styles.metricRow}>
+            <Text style={styles.metricLabel}>Cached Materials</Text>
+            <Text style={styles.metricValue}>{metrics.totalMaterials}</Text>
+          </View>
+          <View style={styles.divider} />
 
-          <Text style={styles.metricLabel}>Cached announcements</Text>
-          <Text style={styles.metricValue}>{metrics.totalAnnouncements}</Text>
+          <View style={styles.metricRow}>
+            <Text style={styles.metricLabel}>Cached Announcements</Text>
+            <Text style={styles.metricValue}>{metrics.totalAnnouncements}</Text>
+          </View>
+          <View style={styles.divider} />
 
-          <Text style={styles.metricLabel}>Quiz attempts</Text>
-          <Text style={styles.metricValue}>{metrics.totalQuizAttempts}</Text>
+          <View style={styles.metricRow}>
+            <Text style={styles.metricLabel}>Quiz Attempts</Text>
+            <Text style={styles.metricValue}>{metrics.totalQuizAttempts}</Text>
+          </View>
+          <View style={styles.divider} />
+
+          <View style={styles.metricRow}>
+            <Text style={styles.metricLabel}>Last Attempt</Text>
+            <Text style={styles.metricValue}>
+              {metrics.latestAttemptedAt ? new Date(metrics.latestAttemptedAt).toLocaleDateString() : "-"}
+            </Text>
+          </View>
 
           {pendingAttempts > 0 ? (
-            <View style={styles.pendingBadge}>
-              <Text style={styles.pendingBadgeText}>{pendingAttempts} pending offline sync</Text>
+            <View style={styles.pendingContainer}>
+              <View style={styles.pendingBadge}>
+                <Text style={styles.pendingBadgeText}>{pendingAttempts} Pending Sync</Text>
+              </View>
+              <Text style={styles.pendingHint}>Will sync when online</Text>
             </View>
           ) : null}
-
-          <Text style={styles.metricLabel}>Last quiz attempt</Text>
-          <Text style={styles.metricValue}>{metrics.latestAttemptedAt ?? "-"}</Text>
         </View>
       )}
     </View>
@@ -79,58 +103,107 @@ export default function ProgressScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f2f6fb",
-    padding: 20,
+    backgroundColor: "#ffffff",
+    padding: 24,
   },
   centered: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "#ffffff",
   },
   title: {
-    fontSize: 26,
+    fontSize: 32,
     fontWeight: "800",
-    color: "#13233a",
-    marginBottom: 8,
+    color: "#0f172a",
+    marginBottom: 4,
+    fontFamily: "System",
+    letterSpacing: -0.5,
   },
   subtitle: {
-    color: "#4f6177",
+    color: "#64748b",
+    fontSize: 16,
+    marginBottom: 24,
+    fontFamily: "System",
   },
   card: {
-    marginTop: 8,
     backgroundColor: "#ffffff",
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#dde3ea",
-    padding: 14,
+    borderColor: "#e2e8f0",
+    paddingVertical: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  metricRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: "#f1f5f9",
   },
   metricLabel: {
-    color: "#5d6f83",
-    marginTop: 10,
-    fontWeight: "600",
+    color: "#64748b",
+    fontWeight: "500",
+    fontSize: 14,
+    fontFamily: "System",
   },
   metricValue: {
-    color: "#13233a",
-    fontWeight: "700",
-    marginTop: 2,
+    color: "#0f172a",
+    fontWeight: "600",
+    fontSize: 15,
+    fontFamily: "System",
+  },
+  pendingContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    backgroundColor: "#fffbeb",
+    borderBottomLeftRadius: 12,
+    borderBottomRightRadius: 12,
+    borderTopWidth: 1,
+    borderTopColor: "#fef3c7",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   pendingBadge: {
-    marginTop: 8,
-    alignSelf: "flex-start",
-    backgroundColor: "#fff4d7",
+    backgroundColor: "#fef3c7",
     borderWidth: 1,
-    borderColor: "#e8d18a",
-    borderRadius: 999,
+    borderColor: "#fde68a",
+    borderRadius: 6,
     paddingHorizontal: 10,
     paddingVertical: 4,
   },
   pendingBadgeText: {
-    color: "#6b4e00",
-    fontWeight: "700",
+    color: "#92400e",
+    fontWeight: "600",
     fontSize: 12,
+    fontFamily: "System",
   },
-  error: {
-    color: "#9b1c1c",
-    marginTop: 8,
+  pendingHint: {
+    fontSize: 12,
+    color: "#b45309",
+    fontFamily: "System",
+  },
+  errorContainer: {
+    backgroundColor: "#fef2f2",
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#fecaca",
+    marginBottom: 16,
+  },
+  errorText: {
+    color: "#dc2626",
+    fontSize: 14,
+    fontFamily: "System",
+    fontWeight: "500",
   },
 });

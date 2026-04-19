@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import { View, Text, StyleSheet } from "react-native";
 
 type Props = {
@@ -11,20 +12,29 @@ export const OfflineBanner = ({ visible }: Props) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Offline mode. Cached data only.</Text>
+      <Ionicons name="cloud-offline" size={16} color="#f8fafc" style={styles.icon} />
+      <Text style={styles.text}>You are offline. Viewing cached data.</Text>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#9b1c1c",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    backgroundColor: "#0f172a",
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  icon: {
+    marginRight: 8,
   },
   text: {
-    color: "#ffffff",
-    fontWeight: "600",
+    color: "#f8fafc",
+    fontWeight: "500",
     textAlign: "center",
+    fontSize: 14,
+    fontFamily: "System",
   },
 });

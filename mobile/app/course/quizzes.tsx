@@ -1,6 +1,7 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { offlineData } from "../../database/offlineData";
 import { courseService } from "../../services/courseService";
 import { withRetry } from "../../services/retry";
@@ -54,30 +55,51 @@ export default function QuizzesScreen() {
   if (loading) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator />
+        <ActivityIndicator color="#0f172a" />
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Quizzes</Text>
-      <Text style={styles.subtitle}>Course ID: {params.id ?? "-"}</Text>
+      <View style={styles.header}>
+        <Text style={styles.title}>Quizzes</Text>
+        <Text style={styles.subtitle}>Assessments for Course {params.id ?? "-"}</Text>
+      </View>
 
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+      {error ? (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
+      ) : null}
 
       <FlatList
         data={quizzes}
         keyExtractor={(item) => String(item.id)}
+        contentContainerStyle={styles.listContent}
         renderItem={({ item }) => (
-          <Pressable style={styles.quizCard} onPress={() => router.push(`/course/quiz/${item.id}`)}>
-            <Text style={styles.quizTitle}>{item.title}</Text>
-            <Text style={styles.quizMeta}>
-              {item.question_count ?? 0} questions {item.time_limit_minutes ? `• ${item.time_limit_minutes} min` : ""}
-            </Text>
+          <Pressable 
+            style={({ pressed }) => [styles.quizCard, pressed && styles.quizCardPressed]} 
+            onPress={() => router.push(`/course/quiz/${item.id}`)}
+          >
+            <View style={styles.iconContainer}>
+              <Ionicons name="help-circle-outline" size={24} color="#0f172a" />
+            </View>
+            <View style={styles.cardContent}>
+              <Text style={styles.quizTitle} numberOfLines={2}>{item.title}</Text>
+              <Text style={styles.quizMeta}>
+                {item.question_count ?? 0} questions {item.time_limit_minutes ? ` • ${item.time_limit_minutes} min` : ""}
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
           </Pressable>
         )}
-        ListEmptyComponent={<Text style={styles.empty}>No quizzes available for this course.</Text>}
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            <Ionicons name="documents-outline" size={48} color="#cbd5e1" style={styles.emptyIcon} />
+            <Text style={styles.emptyText}>No quizzes available yet.</Text>
+          </View>
+        }
       />
     </View>
   );
@@ -86,47 +108,112 @@ export default function QuizzesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f2f6fb",
-    padding: 16,
+    backgroundColor: "#f8fafc",
   },
   centered: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "#ffffff",
+  },
+  header: {
+    paddingHorizontal: 24,
+    paddingTop: 24,
+    paddingBottom: 16,
+    backgroundColor: "#ffffff",
+    borderBottomWidth: 1,
+    borderBottomColor: "#e2e8f0",
   },
   title: {
-    fontSize: 26,
+    fontSize: 32,
     fontWeight: "800",
-    color: "#13233a",
+    color: "#0f172a",
     marginBottom: 4,
+    fontFamily: "System",
+    letterSpacing: -0.5,
   },
   subtitle: {
-    color: "#4f6177",
-    marginBottom: 12,
+    color: "#64748b",
+    fontSize: 16,
+    fontFamily: "System",
+  },
+  listContent: {
+    padding: 24,
   },
   quizCard: {
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: "#ffffff",
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#dde3ea",
-    padding: 14,
-    marginBottom: 10,
+    borderColor: "#e2e8f0",
+    padding: 16,
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  quizCardPressed: {
+    backgroundColor: "#f1f5f9",
+    borderColor: "#cbd5e1",
+  },
+  iconContainer: {
+    backgroundColor: "#f8fafc",
+    width: 48,
+    height: 48,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 16,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+  },
+  cardContent: {
+    flex: 1,
+    marginRight: 12,
   },
   quizTitle: {
-    color: "#13233a",
-    fontWeight: "700",
+    color: "#0f172a",
+    fontWeight: "600",
+    fontSize: 16,
+    marginBottom: 4,
+    fontFamily: "System",
   },
   quizMeta: {
-    color: "#4f6177",
-    marginTop: 4,
+    color: "#64748b",
+    fontSize: 13,
+    fontWeight: "500",
+    fontFamily: "System",
   },
-  empty: {
+  emptyContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingTop: 48,
+  },
+  emptyIcon: {
+    marginBottom: 16,
+  },
+  emptyText: {
+    color: "#64748b",
+    fontSize: 16,
+    fontFamily: "System",
     textAlign: "center",
-    color: "#4f6177",
-    marginTop: 24,
   },
-  error: {
-    color: "#9b1c1c",
-    marginBottom: 8,
+  errorContainer: {
+    margin: 24,
+    marginBottom: 0,
+    backgroundColor: "#fef2f2",
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#fecaca",
+  },
+  errorText: {
+    color: "#dc2626",
+    fontSize: 14,
+    fontFamily: "System",
+    fontWeight: "500",
   },
 });
