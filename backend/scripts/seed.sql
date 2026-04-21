@@ -6,7 +6,8 @@ USE elearn;
 -- Insert demo users
 INSERT INTO users (email, password_hash, name, role) VALUES
 ('lecturer@university.edu', '$2a$10$pQZZT5w.C1epD7xdq1GEg.H5tHb4YNxa2MkQYrcDYsdDDZvN2RdNq', 'Dr. Jane Smith', 'lecturer'),
-('student@university.edu', '$2a$10$pQZZT5w.C1epD7xdq1GEg.H5tHb4YNxa2MkQYrcDYsdDDZvN2RdNq', 'John Doe', 'student')
+('student@university.edu', '$2a$10$pQZZT5w.C1epD7xdq1GEg.H5tHb4YNxa2MkQYrcDYsdDDZvN2RdNq', 'John Doe', 'student'),
+('admin@university.edu', '$2a$10$pQZZT5w.C1epD7xdq1GEg.H5tHb4YNxa2MkQYrcDYsdDDZvN2RdNq', 'Admin User', 'admin')
 ON DUPLICATE KEY UPDATE
 	password_hash=VALUES(password_hash),
 	name=VALUES(name),
