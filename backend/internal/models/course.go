@@ -7,6 +7,7 @@ type Course struct {
 	Title        string    `json:"title"`
 	Code         string    `json:"code"`
 	Description  string    `json:"description"`
+	Thumbnail    string    `json:"thumbnail,omitempty"`
 	LecturerID   int64     `json:"lecturer_id"`
 	LecturerName string    `json:"lecturer_name,omitempty"`
 	CreatedAt    time.Time `json:"created_at"`
@@ -14,9 +15,9 @@ type Course struct {
 }
 
 type Enrollment struct {
-	ID        int64     `json:"id"`
-	UserID    int64     `json:"user_id"`
-	CourseID  int64     `json:"course_id"`
+	ID         int64     `json:"id"`
+	UserID     int64     `json:"user_id"`
+	CourseID   int64     `json:"course_id"`
 	EnrolledAt time.Time `json:"enrolled_at"`
 }
 
@@ -44,14 +45,14 @@ type Quiz struct {
 }
 
 type QuizQuestion struct {
-	ID                  int64     `json:"id"`
-	QuizID              int64     `json:"quiz_id"`
-	QuestionText        string    `json:"question_text"`
-	Options             []string  `json:"options"`
-	CorrectOptionIndex  int       `json:"-"` // Never expose to students
-	Points              int       `json:"points"`
-	CreatedAt           time.Time `json:"created_at"`
-	UpdatedAt           time.Time `json:"updated_at"`
+	ID                 int64     `json:"id"`
+	QuizID             int64     `json:"quiz_id"`
+	QuestionText       string    `json:"question_text"`
+	Options            []string  `json:"options"`
+	CorrectOptionIndex int       `json:"-"` // Never expose to students
+	Points             int       `json:"points"`
+	CreatedAt          time.Time `json:"created_at"`
+	UpdatedAt          time.Time `json:"updated_at"`
 }
 
 type QuizAttempt struct {
@@ -84,10 +85,10 @@ type MaterialView struct {
 }
 
 type DownloadManifest struct {
-	ID          int64     `json:"id"`
-	CourseID    int64     `json:"course_id"`
-	Files       string    `json:"files"`
-	Version     int       `json:"version"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	ID        int64     `json:"id"`
+	CourseID  int64     `json:"course_id"`
+	Files     string    `json:"files"`
+	Version   int       `json:"version"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }

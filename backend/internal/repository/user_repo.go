@@ -74,6 +74,60 @@ func (r *UserRepository) Update(user *models.User) error {
 	return err
 }
 
+func (r *UserRepository) Delete(id int64) error {
+	_, err := r.db.Exec("DELETE FROM users WHERE id = ?", id)
+	return err
+}
+
+func (r *UserRepository) ListAll(roleFilter string, offset, limit int) ([]models.User, int, error) {
+	query := "SELECT id, email, name, role, created_at, updated_at FROM users"
+	var args []interface{}
+	countQuery := "SELECT COUNT(*) FROM users"
+
+	if roleFilter != "" {
+		query += " WHERE role = ?"
+		countQuery += " WHERE role = ?"
+		args = append(args, roleFilter)
+	}
+
+	var total int
+	err := r.db.QueryRow(countQuery, args...).Scan(&total)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	query += " ORDER BY created_at DESC LIMIT ? OFFSET ?"
+	args = append(args, limit, offset)
+
+	rows, err := r.db.Query(query, args...)
+	if err != nil {
+		return nil, 0, err
+	}
+	defer rows.Close()
+
+	var users []models.User
+	for rows.Next() {
+		var u models.User
+		if err := rows.Scan(&u.ID, &u.Email, &u.Name, &u.Role, &u.CreatedAt, &u.UpdatedAt); err != nil {
+			return nil, 0, err
+		}
+		users = append(users, u)
+	}
+	return users, total, nil
+}
+
+func (r *UserRepository) CountByRole(role string) (int, error) {
+	var count int
+	query := "SELECT COUNT(*) FROM users"
+	var args []interface{}
+	if role != "" {
+		query += " WHERE role = ?"
+		args = append(args, role)
+	}
+	err := r.db.QueryRow(query, args...).Scan(&count)
+	return count, err
+}
+
 func (r *UserRepository) SetRefreshTokenHash(userID int64, tokenHash string) error {
 	result, err := r.db.Exec(
 		"UPDATE users SET refresh_token_hash = ?, updated_at = ? WHERE id = ?",

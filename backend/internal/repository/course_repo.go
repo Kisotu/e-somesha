@@ -364,3 +364,176 @@ func toJSON(v interface{}) (string, error) {
 	}
 	return string(b), nil
 }
+
+func (r *CourseRepository) CountAll() (int, error) {
+	var count int
+	err := r.db.QueryRow("SELECT COUNT(*) FROM courses").Scan(&count)
+	return count, err
+}
+
+func (r *CourseRepository) CountQuizzes() (int, error) {
+	var count int
+	err := r.db.QueryRow("SELECT COUNT(*) FROM quizzes").Scan(&count)
+	return count, err
+}
+
+func (r *CourseRepository) Create(c *models.Course) error {
+	query := "INSERT INTO courses (title, description, code, thumbnail, created_at, updated_at) VALUES (?, ?, ?, ?, NOW(), NOW())"
+	result, err := r.db.Exec(query, c.Title, c.Description, c.Code, c.Thumbnail)
+	if err != nil {
+		return err
+	}
+	id, err := result.LastInsertId()
+	if err != nil {
+		return err
+	}
+	c.ID = id
+	return nil
+}
+
+func (r *CourseRepository) Update(c *models.Course) error {
+	query := "UPDATE courses SET title = ?, description = ?, code = ?, thumbnail = ?, updated_at = NOW() WHERE id = ?"
+	_, err := r.db.Exec(query, c.Title, c.Description, c.Code, c.Thumbnail, c.ID)
+	return err
+}
+
+func (r *CourseRepository) Delete(id int64) error {
+	_, err := r.db.Exec("DELETE FROM courses WHERE id = ?", id)
+	return err
+}
+
+func (r *CourseRepository) EnrollUser(courseID, userID int64) error {
+	_, err := r.db.Exec("INSERT IGNORE INTO enrollments (course_id, user_id, enrolled_at) VALUES (?, ?, NOW())", courseID, userID)
+	return err
+}
+
+func (r *CourseRepository) UnenrollUser(courseID, userID int64) error {
+	_, err := r.db.Exec("DELETE FROM enrollments WHERE course_id = ? AND user_id = ?", courseID, userID)
+	return err
+}
+
+func (r *CourseRepository) ListAll() ([]models.Course, error) {
+	rows, err := r.db.Query("SELECT id, title, description, code, thumbnail, created_at, updated_at FROM courses ORDER BY created_at DESC")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var courses []models.Course
+	for rows.Next() {
+		var c models.Course
+		if err := rows.Scan(&c.ID, &c.Title, &c.Description, &c.Code, &c.Thumbnail, &c.CreatedAt, &c.UpdatedAt); err != nil {
+			return nil, err
+		}
+		courses = append(courses, c)
+	}
+	return courses, nil
+}
+
+func (r *CourseRepository) CreateMaterial(m *models.Material) error {
+	query := "INSERT INTO materials (course_id, title, type, file_url, file_size, checksum, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())"
+	result, err := r.db.Exec(query, m.CourseID, m.Title, m.Type, m.FileURL, m.FileSize, m.Checksum)
+	if err != nil {
+		return err
+	}
+	id, err := result.LastInsertId()
+	if err != nil {
+		return err
+	}
+	m.ID = id
+	return nil
+}
+
+func (r *CourseRepository) UpdateMaterial(m *models.Material) error {
+	query := "UPDATE materials SET title = ?, type = ?, file_url = ?, file_size = ?, checksum = ?, updated_at = NOW() WHERE id = ?"
+	_, err := r.db.Exec(query, m.Title, m.Type, m.FileURL, m.FileSize, m.Checksum, m.ID)
+	return err
+}
+
+func (r *CourseRepository) DeleteMaterial(id int64) error {
+	_, err := r.db.Exec("DELETE FROM materials WHERE id = ?", id)
+	return err
+}
+
+func (r *CourseRepository) CreateAnnouncement(a *models.Announcement) error {
+	query := "INSERT INTO announcements (course_id, title, content, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())"
+	result, err := r.db.Exec(query, a.CourseID, a.Title, a.Content)
+	if err != nil {
+		return err
+	}
+	id, err := result.LastInsertId()
+	if err != nil {
+		return err
+	}
+	a.ID = id
+	return nil
+}
+
+func (r *CourseRepository) UpdateAnnouncement(a *models.Announcement) error {
+	query := "UPDATE announcements SET title = ?, content = ?, updated_at = NOW() WHERE id = ?"
+	_, err := r.db.Exec(query, a.Title, a.Content, a.ID)
+	return err
+}
+
+func (r *CourseRepository) DeleteAnnouncement(id int64) error {
+	_, err := r.db.Exec("DELETE FROM announcements WHERE id = ?", id)
+	return err
+}
+
+func (r *CourseRepository) CreateQuiz(q *models.Quiz) error {
+	query := "INSERT INTO quizzes (course_id, title, description, time_limit_minutes, created_at, updated_at) VALUES (?, ?, ?, ?, NOW(), NOW())"
+	result, err := r.db.Exec(query, q.CourseID, q.Title, q.Description, q.TimeLimitMinutes)
+	if err != nil {
+		return err
+	}
+	id, err := result.LastInsertId()
+	if err != nil {
+		return err
+	}
+	q.ID = id
+	return nil
+}
+
+func (r *CourseRepository) UpdateQuiz(q *models.Quiz) error {
+	query := "UPDATE quizzes SET title = ?, description = ?, time_limit_minutes = ?, updated_at = NOW() WHERE id = ?"
+	_, err := r.db.Exec(query, q.Title, q.Description, q.TimeLimitMinutes, q.ID)
+	return err
+}
+
+func (r *CourseRepository) DeleteQuiz(id int64) error {
+	_, err := r.db.Exec("DELETE FROM quizzes WHERE id = ?", id)
+	return err
+}
+
+func (r *CourseRepository) CreateQuizQuestion(q *models.QuizQuestion) error {
+	optionsJSON, err := json.Marshal(q.Options)
+	if err != nil {
+		return err
+	}
+	query := "INSERT INTO quiz_questions (quiz_id, question_text, options, correct_option_index, points, created_at, updated_at) VALUES (?, ?, ?, ?, ?, NOW(), NOW())"
+	result, err := r.db.Exec(query, q.QuizID, q.QuestionText, string(optionsJSON), q.CorrectOptionIndex, q.Points)
+	if err != nil {
+		return err
+	}
+	id, err := result.LastInsertId()
+	if err != nil {
+		return err
+	}
+	q.ID = id
+	return nil
+}
+
+func (r *CourseRepository) UpdateQuizQuestion(q *models.QuizQuestion) error {
+	optionsJSON, err := json.Marshal(q.Options)
+	if err != nil {
+		return err
+	}
+	query := "UPDATE quiz_questions SET question_text = ?, options = ?, correct_option_index = ?, points = ?, updated_at = NOW() WHERE id = ?"
+	_, err = r.db.Exec(query, q.QuestionText, string(optionsJSON), q.CorrectOptionIndex, q.Points, q.ID)
+	return err
+}
+
+func (r *CourseRepository) DeleteQuizQuestion(id int64) error {
+	_, err := r.db.Exec("DELETE FROM quiz_questions WHERE id = ?", id)
+	return err
+}

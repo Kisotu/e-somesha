@@ -231,3 +231,19 @@ func toManifestFiles(materials []models.Material) []models.DownloadManifestFile 
 	}
 	return files
 }
+
+func (h *CourseHandler) GetQuestions(c *gin.Context) {
+quizID, err := strconv.ParseInt(c.Param("qid"), 10, 64)
+if err != nil {
+c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid quiz ID"})
+return
+}
+
+questions, err := h.courseRepo.GetQuizQuestions(quizID)
+if err != nil {
+c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch questions"})
+return
+}
+
+c.JSON(http.StatusOK, questions)
+}

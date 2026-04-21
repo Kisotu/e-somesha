@@ -40,6 +40,7 @@ func main() {
 	authHandler := handlers.NewAuthHandler(userRepo, cfg)
 	courseHandler := handlers.NewCourseHandler(courseRepo)
 	syncHandler := handlers.NewSyncHandler(courseRepo)
+	adminHandler := handlers.NewAdminHandler(userRepo, courseRepo)
 
 	r := gin.Default()
 	r.Use(middleware.CORSMiddleware())
@@ -81,6 +82,7 @@ func main() {
 			quizzes := protected.Group("/quizzes")
 			{
 				quizzes.GET("/:id", courseHandler.GetQuiz)
+				quizzes.GET("/:id/questions", courseHandler.GetQuestions)
 			}
 
 			sync := protected.Group("/sync")
@@ -91,6 +93,39 @@ func main() {
 				sync.POST("/materials_viewed", syncHandler.SyncMaterialsViewed)
 				sync.POST("/quiz_attempts", syncHandler.SyncQuizAttempts)
 			}
+		}
+
+		admin := api.Group("/admin")
+		admin.Use(middleware.AuthMiddleware(cfg), middleware.AdminMiddleware())
+		{
+			admin.GET("/stats", adminHandler.GetStats)
+			admin.GET("/users", adminHandler.GetUsers)
+			admin.PUT("/users/:id", adminHandler.UpdateUser)
+			admin.DELETE("/users/:id", adminHandler.DeleteUser)
+
+			admin.GET("/courses", adminHandler.GetCourses)
+			admin.POST("/courses", adminHandler.CreateCourse)
+			admin.PUT("/courses/:id", adminHandler.UpdateCourse)
+			admin.DELETE("/courses/:id", adminHandler.DeleteCourse)
+
+			admin.POST("/enrollments", adminHandler.EnrollUser)
+			admin.DELETE("/courses/:id/enrollments/:userId", adminHandler.UnenrollUser)
+
+			admin.POST("/courses/:id/materials", adminHandler.CreateMaterial)
+			admin.PUT("/materials/:mid", adminHandler.UpdateMaterial)
+			admin.DELETE("/materials/:mid", adminHandler.DeleteMaterial)
+
+			admin.POST("/courses/:id/announcements", adminHandler.CreateAnnouncement)
+			admin.PUT("/announcements/:aid", adminHandler.UpdateAnnouncement)
+			admin.DELETE("/announcements/:aid", adminHandler.DeleteAnnouncement)
+
+			admin.POST("/courses/:id/quizzes", adminHandler.CreateQuiz)
+			admin.PUT("/quizzes/:qid", adminHandler.UpdateQuiz)
+			admin.DELETE("/quizzes/:qid", adminHandler.DeleteQuiz)
+
+			admin.POST("/quizzes/:qid/questions", adminHandler.CreateQuestion)
+			admin.PUT("/questions/:quesid", adminHandler.UpdateQuestion)
+			admin.DELETE("/questions/:quesid", adminHandler.DeleteQuestion)
 		}
 	}
 
