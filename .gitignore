@@ -22,7 +22,6 @@ Thumbs.db
 .env.local
 .env.*.local
 backend/.env*
-backend/.env.production
 admin-dashboard/.env
 mobile/.env
 
