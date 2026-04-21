@@ -6,6 +6,7 @@ backend/server.log
 backend/vendor/
 node_modules/
 mobile/node_modules/
+admin-dashboard/node_modules/
 
 # OS generated files
 .DS_Store
@@ -21,6 +22,8 @@ Thumbs.db
 .env.local
 .env.*.local
 backend/.env
+admin-dashboard/.env
+mobile/.env
 
 # Go build outputs
 *.out
@@ -32,6 +35,7 @@ backend/.env
 .idea/
 *.swp
 *.swo
+*~
 
 # Expo/Mobile Specific
 mobile/.expo/
@@ -48,6 +52,99 @@ mobile/*.db-journal
 
 # Temporary files
 Db.txt
+
+# Production builds
+dist/
+build/
+admin-dashboard/dist/
+admin-dashboard/build/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# nyc test coverage
+.nyc_output
+
+# Dependency directories
+jspm_packages/
+
+# Optional npm cache directory
+.npm
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# parcel-bundler cache (https://parceljs.org/)
+.cache
+.parcel-cache
+
+# next.js build output
+.next
+
+# nuxt.js build output
+.nuxt
+
+# vuepress build output
+.vuepress/dist
+
+# Serverless directories
+.serverless
+
+# FuseBox cache
+.fusebox/
+
+# DynamoDB Local files
+.dynamodb/
+
+# TernJS port file
+.tern-port
+
+# Stores VSCode versions used for testing VSCode extensions
+.vscode-test
+
+# Go specific
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Go workspace file
+go.work
+
+# Go cache
+backend/.gocache/
+
+# Expo specific
+.expo/
+.expo-shared/
+
+# React Native
+ios/Pods/
+android/app/build/
+
+# Temporary files
+*.tmp
+*.temp
 
 BUILD_PLAN.md
 PHASED_FIX_RECOMMENDATIONS.md
