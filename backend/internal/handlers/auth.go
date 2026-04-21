@@ -9,6 +9,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -27,6 +28,15 @@ func hashRefreshToken(token string) string {
 	return hex.EncodeToString(digest[:])
 }
 
+func normalizeRole(role string) string {
+	switch strings.ToLower(strings.TrimSpace(role)) {
+	case "administrator":
+		return "admin"
+	default:
+		return strings.ToLower(strings.TrimSpace(role))
+	}
+}
+
 func (h *AuthHandler) Register(c *gin.Context) {
 	var req models.RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -34,11 +44,12 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
+	req.Role = normalizeRole(req.Role)
 	if req.Role == "" {
 		req.Role = "student"
 	}
-	if req.Role != "student" && req.Role != "lecturer" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Role must be student or lecturer"})
+	if req.Role != "student" && req.Role != "lecturer" && req.Role != "admin" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Role must be student, lecturer or admin"})
 		return
 	}
 
@@ -64,6 +75,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
+	user.Role = normalizeRole(user.Role)
 	accessToken, err := auth.GenerateAccessToken(user.ID, user.Email, user.Role, h.cfg.JWTSecret, h.cfg.JWTExpiry)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate access token"})
@@ -110,6 +122,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
+	user.Role = normalizeRole(user.Role)
 	accessToken, err := auth.GenerateAccessToken(user.ID, user.Email, user.Role, h.cfg.JWTSecret, h.cfg.JWTExpiry)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate access token"})
@@ -176,6 +189,7 @@ func (h *AuthHandler) Refresh(c *gin.Context) {
 		return
 	}
 
+	user.Role = normalizeRole(user.Role)
 	accessToken, err := auth.GenerateAccessToken(user.ID, user.Email, user.Role, h.cfg.JWTSecret, h.cfg.JWTExpiry)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate access token"})
