@@ -35,7 +35,7 @@ var migrations = []Migration{
 				password_hash VARCHAR(255) NOT NULL,
 				refresh_token_hash VARCHAR(255) NULL,
 				name VARCHAR(255) NOT NULL,
-				role ENUM('student', 'lecturer') DEFAULT 'student',
+				role ENUM('student', 'lecturer', 'admin') DEFAULT 'student',
 				created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 				updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 			)`,
@@ -154,6 +154,16 @@ var migrations = []Migration{
 		// Keep version 2 as a no-op for backward compatibility.
 		Up:   []string{},
 		Down: []string{},
+	},
+	{
+		Version: 3,
+		Name:    "ensure_refresh_token_hash",
+		Up: []string{
+			`ALTER TABLE users ADD COLUMN refresh_token_hash VARCHAR(255) NULL`,
+		},
+		Down: []string{
+			`ALTER TABLE users DROP COLUMN refresh_token_hash`,
+		},
 	},
 }
 
